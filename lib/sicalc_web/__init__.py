@@ -2,14 +2,31 @@ import pyautogui as pag
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class SicalcWeb:
 
     def __init__(self):
         self.site = 'https://sicalc.receita.economia.gov.br/sicalc/rapido/contribuinte'
-        self.navegador = webdriver.Chrome()
+        self.navegador = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
         self.navegador.get(self.site)
+        self.SITE_MAP = {
+            'buttons': {
+                'continuar': {'xpath': '//*[@id="divBotoes"]/input[1]'},
+                'calcular': {'xpath': '//*[@id="btnCalcular"]'},
+                'darf': {'xpath': '//*[@id="btnDarf"]'},
+                'retornar': {'xpath': '//*[@id="btnRetornar"]'}
+            },
+            'inputs': {
+                'cod_receita': {'xpath': '//*[@id="codReceitaPrincipal"]'},
+                'cnpj': {'xpath': '//*[@id="cnpjFormatado"]'}
+            },
+            'radio': {
+                'pj': {'xpath': '//*[@id="optionPJ"]'}
+            }
+        }
 
     @staticmethod
     def clicar(x, y):
@@ -30,16 +47,16 @@ class SicalcWeb:
         self.navegador.find_elements(By.XPATH, path)[0].send_keys(texto)
 
     def pessoa_juridica(self):
-        self.xpath_click('//*[@id="optionPJ"]')
+        self.xpath_click(self.SITE_MAP['radio']['pj']['xpath'])
 
     def informar_cnpj(self, cnpj):
-        self.xpath_escrever('//*[@id="cnpjFormatado"]', cnpj)
+        self.xpath_escrever(self.SITE_MAP['inputs']['cnpj']['xpath'], cnpj)
 
     def sou_humano(self):
         self.clicar(77, 766)
 
     def clicar_btn_continuar(self):
-        self.xpath_click('//*[@id="divBotoes"]/input[1]')
+        self.xpath_click(self.SITE_MAP['buttons']['continuar']['xpath'])
 
     def informar_empresa(self, cnpj):
         pag.sleep(1)
@@ -53,27 +70,23 @@ class SicalcWeb:
         pag.sleep(1)
 
     def informar_dados_darf(self, codigo):
-        self.xpath_escrever('//*[@id="codReceitaPrincipal"]', codigo)
+        self.xpath_escrever(self.SITE_MAP['inputs']['cod_receita']['xpath'], codigo)
         pag.sleep(1)
         pag.click(269, 889)
         pag.sleep(1)
 
     def periodo_apuracao(self, apuracao):
-        self.teclar('tab')
-        self.teclar('tab')
-        self.teclar('tab')
+        [self.teclar('tab') for _ in range(3)]
         self.escrever(apuracao)
 
     def valor_principal(self, valor):
-        self.teclar('tab')
-        self.teclar('tab')
-        self.teclar('tab')
+        [self.teclar('tab') for _ in range(3)]
         self.escrever(valor)
 
     def clicar_btn_calcular(self):
         self.teclar('tab')
         pag.sleep(1)
-        self.xpath_click('//*[@id="btnCalcular"]')
+        self.xpath_click(self.SITE_MAP['buttons']['calcular']['xpath'])
 
     def selecionar_darf(self):
         pag.sleep(1)
@@ -81,11 +94,11 @@ class SicalcWeb:
 
     def emitir_darf(self):
         pag.sleep(1)
-        self.xpath_click('//*[@id="btnDarf"]')
+        self.xpath_click(self.SITE_MAP['buttons']['darf']['xpath'])
 
     def retornar(self):
         pag.sleep(1)
-        self.xpath_click('//*[@id="btnRetornar"]')
+        self.xpath_click(self.SITE_MAP['buttons']['retornar']['xpath'])
 
     def gerar_darf(self, cnpj, codigo, apuracao, valor):
         self.informar_empresa(cnpj)
