@@ -19,6 +19,9 @@ class SicalcWeb:
                 'darf': {'xpath': '//*[@id="btnDarf"]'},
                 'retornar': {'xpath': '//*[@id="btnRetornar"]'}
             },
+            'checkbox': {
+                'selecionar_darf': {'xpath': '//*[@id="cts"]/tbody/tr/td[1]/input'}
+            },
             'inputs': {
                 'cod_receita': {'xpath': '//*[@id="codReceitaPrincipal"]'},
                 'cnpj': {'xpath': '//*[@id="cnpjFormatado"]'}
@@ -90,7 +93,7 @@ class SicalcWeb:
 
     def selecionar_darf(self):
         pag.sleep(1)
-        self.xpath_click('//*[@id="cts"]/tbody/tr/td[1]/input')
+        self.xpath_click(self.SITE_MAP['checkbox']['selecionar_darf']['xpath'])
 
     def emitir_darf(self):
         pag.sleep(1)
